@@ -1,0 +1,557 @@
+<!doctype html>
+<html lang="id" class="h-full">
+ <head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Kuis Kelistrikan ⚡</title>
+  <script src="https://cdn.tailwindcss.com/3.4.17"></script>
+  <script src="https://cdn.jsdelivr.net/npm/lucide@0.263.0/dist/umd/lucide.min.js"></script>
+  <script src="/_sdk/element_sdk.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&amp;display=swap" rel="stylesheet">
+  <style>
+*{font-family:'Nunito',sans-serif;box-sizing:border-box}
+html,body{height:100%;margin:0;overflow:hidden}
+
+.bg-electric{
+  background: linear-gradient(135deg,#0a1628 0%,#0d2137 30%,#0f2b4a 60%,#0a1628 100%);
+}
+.bg-electric::before{
+  content:'';position:fixed;inset:0;
+  background:
+    radial-gradient(ellipse 600px 600px at 20% 80%,rgba(59,130,246,0.08),transparent),
+    radial-gradient(ellipse 400px 400px at 80% 20%,rgba(250,204,21,0.06),transparent);
+  pointer-events:none;z-index:0;
+}
+
+/* Grid pattern */
+.grid-pattern{
+  position:fixed;inset:0;
+  background-image:
+    linear-gradient(rgba(59,130,246,0.04) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(59,130,246,0.04) 1px,transparent 1px);
+  background-size:40px 40px;
+  pointer-events:none;z-index:0;
+}
+
+.glow-blue{text-shadow:0 0 20px rgba(59,130,246,0.6),0 0 40px rgba(59,130,246,0.3)}
+.glow-yellow{text-shadow:0 0 20px rgba(250,204,21,0.6),0 0 40px rgba(250,204,21,0.3)}
+
+.card-glass{
+  background:rgba(15,30,60,0.85);
+  backdrop-filter:blur(20px);
+  border:1px solid rgba(59,130,246,0.15);
+  box-shadow:0 0 30px rgba(59,130,246,0.05),0 20px 60px rgba(0,0,0,0.4);
+}
+
+.btn-option{
+  background:rgba(20,40,80,0.7);
+  border:2px solid rgba(59,130,246,0.2);
+  transition:all .2s ease;
+  position:relative;overflow:hidden;
+}
+.btn-option:hover:not(.disabled-opt){
+  border-color:rgba(59,130,246,0.6);
+  background:rgba(30,60,120,0.7);
+  transform:translateY(-2px);
+  box-shadow:0 0 20px rgba(59,130,246,0.15);
+}
+.btn-option.correct{
+  border-color:#22c55e!important;
+  background:rgba(34,197,94,0.2)!important;
+  box-shadow:0 0 25px rgba(34,197,94,0.3)!important;
+}
+.btn-option.wrong{
+  border-color:#ef4444!important;
+  background:rgba(239,68,68,0.2)!important;
+  box-shadow:0 0 25px rgba(239,68,68,0.3)!important;
+}
+.disabled-opt{opacity:0.5;cursor:not-allowed;pointer-events:none}
+
+.progress-fill{
+  background:linear-gradient(90deg,#3b82f6,#facc15);
+  box-shadow:0 0 10px rgba(59,130,246,0.5);
+  transition:width .4s ease;
+}
+.timer-ring{transition:stroke-dashoffset .1s linear}
+
+@keyframes fadeSlideIn{
+  from{opacity:0;transform:translateY(20px)}
+  to{opacity:1;transform:translateY(0)}
+}
+@keyframes pulseGlow{
+  0%,100%{filter:drop-shadow(0 0 8px rgba(250,204,21,0.4))}
+  50%{filter:drop-shadow(0 0 20px rgba(250,204,21,0.8))}
+}
+@keyframes floatY{
+  0%,100%{transform:translateY(0)}
+  50%{transform:translateY(-8px)}
+}
+@keyframes confettiFall{
+  0%{transform:translateY(-10px) rotate(0deg);opacity:1}
+  100%{transform:translateY(100%) rotate(720deg);opacity:0}
+}
+.anim-fade{animation:fadeSlideIn .4s ease both}
+.anim-pulse{animation:pulseGlow 2s ease infinite}
+.anim-float{animation:floatY 3s ease infinite}
+.confetti-piece{position:fixed;width:10px;height:10px;z-index:999;pointer-events:none;animation:confettiFall 3s ease forwards}
+
+.mascot{font-size:3rem;display:inline-block}
+.mascot-lg{font-size:5rem}
+
+.leaderboard-row{
+  background:rgba(20,40,80,0.5);
+  border:1px solid rgba(59,130,246,0.1);
+}
+.leaderboard-row:nth-child(1){border-color:rgba(250,204,21,0.4)}
+.leaderboard-row:nth-child(2){border-color:rgba(192,192,192,0.4)}
+.leaderboard-row:nth-child(3){border-color:rgba(205,127,50,0.4)}
+
+.scrollable{overflow-y:auto;-webkit-overflow-scrolling:touch}
+.scrollable::-webkit-scrollbar{width:4px}
+.scrollable::-webkit-scrollbar-thumb{background:rgba(59,130,246,0.3);border-radius:4px}
+</style>
+  <style>body { box-sizing: border-box; }</style>
+  <script src="/_sdk/data_sdk.js" type="text/javascript"></script>
+ </head>
+ <body class="h-full bg-electric text-white">
+  <div class="grid-pattern"></div>
+  <div id="app" class="relative z-10 h-full w-full flex flex-col items-center justify-center p-4 scrollable"><!-- START SCREEN -->
+   <div id="screen-start" class="w-full max-w-lg text-center anim-fade">
+    <div class="mascot-lg anim-float mb-2">
+     ⚡
+    </div>
+    <h1 id="main-title" class="text-3xl md:text-4xl font-black glow-yellow text-yellow-300 mb-2">Kuis Kelistrikan ⚡</h1>
+    <p class="text-blue-200 mb-6 text-sm md:text-base">Uji pengetahuanmu tentang konduktor, isolator, semikonduktor &amp; kabel!</p>
+    <div class="card-glass rounded-2xl p-5 mb-6">
+     <div class="flex items-center justify-around text-center">
+      <div>
+       <div class="text-2xl mb-1">
+        📋
+       </div>
+       <div class="text-xs text-blue-300">
+        10 Soal
+       </div>
+      </div>
+      <div>
+       <div class="text-2xl mb-1">
+        ⏱️
+       </div>
+       <div class="text-xs text-blue-300">
+        10 dtk/soal
+       </div>
+      </div>
+      <div>
+       <div class="text-2xl mb-1">
+        🏆
+       </div>
+       <div class="text-xs text-blue-300">
+        Leaderboard
+       </div>
+      </div>
+     </div>
+    </div><input id="player-name" type="text" placeholder="Masukkan namamu..." class="w-full px-4 py-3 rounded-xl bg-[rgba(20,40,80,0.7)] border-2 border-blue-500/30 text-white placeholder-blue-400/50 focus:outline-none focus:border-yellow-400/60 mb-4 text-center text-lg" maxlength="20"> <button onclick="startQuiz()" class="w-full py-3 rounded-xl font-bold text-lg bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-400 hover:to-blue-500 transition-all hover:scale-[1.02] active:scale-95 shadow-lg shadow-blue-500/30"> Mulai Kuis 🚀 </button> <button onclick="showLeaderboard()" class="mt-3 text-sm text-blue-400 hover:text-yellow-300 transition-colors">📊 Lihat Leaderboard</button>
+   </div><!-- QUIZ SCREEN -->
+   <div id="screen-quiz" class="w-full max-w-lg hidden">
+    <div class="flex items-center justify-between mb-3"><span id="q-counter" class="text-sm font-bold text-blue-300">Soal 1/10</span>
+     <div class="flex items-center gap-2"><span id="score-display" class="text-sm font-bold text-yellow-300">⭐ 0</span>
+      <div class="relative w-10 h-10">
+       <svg class="w-10 h-10 -rotate-90" viewbox="0 0 36 36"><circle cx="18" cy="18" r="15" fill="none" stroke="rgba(59,130,246,0.15)" stroke-width="3" /> <circle id="timer-circle" cx="18" cy="18" r="15" fill="none" stroke="#facc15" stroke-width="3" stroke-dasharray="94.25" stroke-dashoffset="0" stroke-linecap="round" class="timer-ring" />
+       </svg><span id="timer-text" class="absolute inset-0 flex items-center justify-center text-xs font-bold text-yellow-300">10</span>
+      </div>
+     </div>
+    </div>
+    <div class="w-full h-2 rounded-full bg-[rgba(20,40,80,0.7)] mb-4 overflow-hidden">
+     <div id="progress-bar" class="h-full rounded-full progress-fill" style="width:10%"></div>
+    </div>
+    <div class="card-glass rounded-2xl p-5 mb-4 anim-fade" id="question-card">
+     <div class="flex items-start gap-3 mb-4"><span class="mascot anim-pulse flex-shrink-0">💡</span>
+      <p id="q-text" class="font-bold text-base md:text-lg leading-relaxed"></p>
+     </div>
+     <div id="options-container" class="space-y-3"></div>
+    </div>
+    <div id="feedback-bar" class="hidden text-center py-2 rounded-xl font-bold text-sm"></div>
+   </div><!-- RESULT SCREEN -->
+   <div id="screen-result" class="w-full max-w-lg text-center hidden anim-fade">
+    <div id="result-mascot" class="mascot-lg anim-float mb-2"></div>
+    <h2 id="result-title" class="text-3xl font-black mb-2"></h2>
+    <p id="result-sub" class="text-blue-200 mb-4"></p>
+    <div class="card-glass rounded-2xl p-5 mb-5">
+     <div class="text-5xl font-black text-yellow-300 glow-yellow mb-1">
+      <span id="final-score">0</span>/10
+     </div>
+     <p class="text-blue-300 text-sm">Skor Akhir</p>
+     <div id="result-stars" class="mt-2 text-2xl"></div>
+    </div><button onclick="restartQuiz()" class="w-full py-3 rounded-xl font-bold text-lg bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-400 hover:to-blue-500 transition-all hover:scale-[1.02] active:scale-95 shadow-lg shadow-blue-500/30 mb-3">Main Lagi 🔄</button> <button onclick="showLeaderboard()" class="text-sm text-blue-400 hover:text-yellow-300 transition-colors">📊 Lihat Leaderboard</button>
+   </div><!-- LEADERBOARD SCREEN -->
+   <div id="screen-leaderboard" class="w-full max-w-lg text-center hidden anim-fade">
+    <div class="text-4xl mb-2">
+     🏆
+    </div>
+    <h2 class="text-2xl font-black glow-blue text-blue-300 mb-4">Leaderboard</h2>
+    <div class="card-glass rounded-2xl p-4 mb-5">
+     <div id="lb-list" class="space-y-2 max-h-72 scrollable"></div>
+     <p id="lb-empty" class="text-blue-400 text-sm py-4 hidden">Belum ada skor. Jadilah yang pertama! ⚡</p>
+    </div><button onclick="backToStart()" class="w-full py-3 rounded-xl font-bold bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-400 hover:to-blue-500 transition-all hover:scale-[1.02] active:scale-95">⬅️ Kembali</button>
+   </div>
+  </div>
+  <script>
+// Audio context for click sounds
+let audioCtx;
+function playClick(){
+  try{
+    if(!audioCtx)audioCtx=new(window.AudioContext||window.webkitAudioContext)();
+    const o=audioCtx.createOscillator(),g=audioCtx.createGain();
+    o.connect(g);g.connect(audioCtx.destination);
+    o.type='sine';o.frequency.setValueAtTime(800,audioCtx.currentTime);
+    o.frequency.exponentialRampToValueAtTime(1200,audioCtx.currentTime+0.05);
+    g.gain.setValueAtTime(0.1,audioCtx.currentTime);
+    g.gain.exponentialRampToValueAtTime(0.001,audioCtx.currentTime+0.1);
+    o.start();o.stop(audioCtx.currentTime+0.1);
+  }catch(e){}
+}
+function playCorrect(){
+  try{
+    if(!audioCtx)audioCtx=new(window.AudioContext||window.webkitAudioContext)();
+    [523,659,784].forEach((f,i)=>{
+      const o=audioCtx.createOscillator(),g=audioCtx.createGain();
+      o.connect(g);g.connect(audioCtx.destination);o.type='sine';
+      o.frequency.value=f;g.gain.setValueAtTime(0.08,audioCtx.currentTime+i*0.1);
+      g.gain.exponentialRampToValueAtTime(0.001,audioCtx.currentTime+i*0.1+0.2);
+      o.start(audioCtx.currentTime+i*0.1);o.stop(audioCtx.currentTime+i*0.1+0.2);
+    });
+  }catch(e){}
+}
+function playWrong(){
+  try{
+    if(!audioCtx)audioCtx=new(window.AudioContext||window.webkitAudioContext)();
+    const o=audioCtx.createOscillator(),g=audioCtx.createGain();
+    o.connect(g);g.connect(audioCtx.destination);o.type='sawtooth';
+    o.frequency.setValueAtTime(300,audioCtx.currentTime);
+    o.frequency.exponentialRampToValueAtTime(150,audioCtx.currentTime+0.2);
+    g.gain.setValueAtTime(0.06,audioCtx.currentTime);
+    g.gain.exponentialRampToValueAtTime(0.001,audioCtx.currentTime+0.3);
+    o.start();o.stop(audioCtx.currentTime+0.3);
+  }catch(e){}
+}
+
+const questions=[
+  {q:"Bahan yang mudah menghantarkan arus listrik disebut…",opts:["Isolator","Semikonduktor","Konduktor","Dielektrik"],ans:2},
+  {q:"Contoh bahan konduktor yang paling umum digunakan adalah…",opts:["Plastik","Karet","Tembaga","Kaca"],ans:2},
+  {q:"Sifat utama konduktor adalah…",opts:["Hambatan tinggi","Tidak memiliki elektron bebas","Konduktivitas tinggi","Tidak bisa dialiri listrik"],ans:2},
+  {q:"Faktor yang mempengaruhi hambatan konduktor adalah…",opts:["Warna dan bentuk","Panjang dan luas penampang","Berat dan volume","Suhu saja"],ans:1},
+  {q:"Kabel yang memiliki pelindung baja (armour) adalah…",opts:["NYY","NYCY","NYFGbY","Twisted"],ans:2},
+  {q:"Kabel twisted digunakan untuk…",opts:["Instalasi tegangan tinggi","Mengurangi interferensi elektromagnetik","Instalasi bawah tanah","Menambah daya listrik"],ans:1},
+  {q:"Bahan yang tidak dapat menghantarkan listrik disebut…",opts:["Konduktor","Isolator","Semikonduktor","Logam"],ans:1},
+  {q:"Contoh bahan isolator adalah…",opts:["Aluminium","Tembaga","Plastik","Besi"],ans:2},
+  {q:"Semikonduktor memiliki sifat…",opts:["Tidak bisa dialiri listrik","Menghantarkan listrik tanpa hambatan","Menghantarkan listrik secara terbatas","Selalu menjadi isolator"],ans:2},
+  {q:"Pada semikonduktor, tipe N memiliki…",opts:["Kekurangan elektron","Kelebihan elektron","Tidak ada elektron","Hambatan tinggi"],ans:1}
+];
+const labels=["A","B","C","D"];
+const icons=["💡","🔌","⚡","🔋","🛠️","🔗","🧱","🧤","🔬","💻"];
+
+let currentQ=0,score=0,timerInterval=null,timeLeft=10,playerName="",answered=false;
+
+const defaultConfig={
+  quiz_title:"Kuis Kelistrikan ⚡",
+  result_great:"Kamu Hebat! 🏆",
+  result_ok:"Lumayan! 💪",
+  result_low:"Coba Lagi! 📚",
+  background_color:"#0a1628",
+  surface_color:"#0f1e3c",
+  text_color:"#e0e7ff",
+  primary_action:"#3b82f6",
+  secondary_action:"#facc15",
+  font_family:"Nunito",
+  font_size:16
+};
+
+function applyConfig(c){
+  const t=c.quiz_title||defaultConfig.quiz_title;
+  const el=document.getElementById('main-title');
+  if(el)el.textContent=t;
+
+  const bg=c.background_color||defaultConfig.background_color;
+  const surface=c.surface_color||defaultConfig.surface_color;
+  const txt=c.text_color||defaultConfig.text_color;
+  const primary=c.primary_action||defaultConfig.primary_action;
+  const accent=c.secondary_action||defaultConfig.secondary_action;
+  const font=c.font_family||defaultConfig.font_family;
+  const fs=c.font_size||defaultConfig.font_size;
+
+  document.body.style.color=txt;
+  document.documentElement.style.setProperty('--bg',bg);
+  document.documentElement.style.setProperty('--surface',surface);
+  document.documentElement.style.setProperty('--txt',txt);
+  document.documentElement.style.setProperty('--primary',primary);
+  document.documentElement.style.setProperty('--accent',accent);
+
+  document.querySelectorAll('.card-glass').forEach(el=>{
+    el.style.borderColor=primary+'26';
+  });
+
+  document.querySelectorAll('h1,h2').forEach(el=>el.style.fontFamily=`${font}, Nunito, sans-serif`);
+  document.querySelectorAll('p,span,button,input,div').forEach(el=>{
+    el.style.fontFamily=`${font}, Nunito, sans-serif`;
+  });
+
+  const baseSize=fs;
+  document.querySelectorAll('h1').forEach(e=>e.style.fontSize=`${baseSize*2}px`);
+  document.querySelectorAll('h2').forEach(e=>e.style.fontSize=`${baseSize*1.5}px`);
+  document.querySelectorAll('p').forEach(e=>e.style.fontSize=`${baseSize}px`);
+
+  // Gradient buttons
+  document.querySelectorAll('.bg-gradient-to-r').forEach(btn=>{
+    btn.style.background=`linear-gradient(to right,${primary},${primary}dd)`;
+  });
+
+  // Accent colored elements
+  document.querySelectorAll('.text-yellow-300,.glow-yellow').forEach(e=>e.style.color=accent);
+  document.querySelectorAll('.text-blue-300,.glow-blue').forEach(e=>e.style.color=primary+'cc');
+
+  // Timer circle
+  const tc=document.getElementById('timer-circle');
+  if(tc)tc.style.stroke=accent;
+  const tt=document.getElementById('timer-text');
+  if(tt)tt.style.color=accent;
+
+  // Progress bar
+  const pb=document.getElementById('progress-bar');
+  if(pb)pb.style.background=`linear-gradient(90deg,${primary},${accent})`;
+}
+
+if(window.elementSdk){
+  window.elementSdk.init({
+    defaultConfig:{...defaultConfig},
+    onConfigChange:async(config)=>{applyConfig(config)},
+    mapToCapabilities:(config)=>({
+      recolorables:[
+        {get:()=>config.background_color||defaultConfig.background_color,set:v=>{config.background_color=v;window.elementSdk.setConfig({background_color:v})}},
+        {get:()=>config.surface_color||defaultConfig.surface_color,set:v=>{config.surface_color=v;window.elementSdk.setConfig({surface_color:v})}},
+        {get:()=>config.text_color||defaultConfig.text_color,set:v=>{config.text_color=v;window.elementSdk.setConfig({text_color:v})}},
+        {get:()=>config.primary_action||defaultConfig.primary_action,set:v=>{config.primary_action=v;window.elementSdk.setConfig({primary_action:v})}},
+        {get:()=>config.secondary_action||defaultConfig.secondary_action,set:v=>{config.secondary_action=v;window.elementSdk.setConfig({secondary_action:v})}}
+      ],
+      borderables:[],
+      fontEditable:{get:()=>config.font_family||defaultConfig.font_family,set:v=>{config.font_family=v;window.elementSdk.setConfig({font_family:v})}},
+      fontSizeable:{get:()=>config.font_size||defaultConfig.font_size,set:v=>{config.font_size=v;window.elementSdk.setConfig({font_size:v})}}
+    }),
+    mapToEditPanelValues:(config)=>new Map([
+      ["quiz_title",config.quiz_title||defaultConfig.quiz_title],
+      ["result_great",config.result_great||defaultConfig.result_great],
+      ["result_ok",config.result_ok||defaultConfig.result_ok],
+      ["result_low",config.result_low||defaultConfig.result_low]
+    ])
+  });
+}
+
+function showScreen(id){
+  ['screen-start','screen-quiz','screen-result','screen-leaderboard'].forEach(s=>{
+    const el=document.getElementById(s);
+    el.classList.add('hidden');
+    el.classList.remove('anim-fade');
+  });
+  const target=document.getElementById(id);
+  target.classList.remove('hidden');
+  void target.offsetWidth;
+  target.classList.add('anim-fade');
+}
+
+function startQuiz(){
+  playClick();
+  playerName=document.getElementById('player-name').value.trim()||"Pemain";
+  currentQ=0;score=0;answered=false;
+  showScreen('screen-quiz');
+  loadQuestion();
+}
+
+function loadQuestion(){
+  answered=false;
+  const q=questions[currentQ];
+  document.getElementById('q-counter').textContent=`Soal ${currentQ+1}/10`;
+  document.getElementById('score-display').textContent=`⭐ ${score}`;
+  document.getElementById('progress-bar').style.width=`${(currentQ+1)*10}%`;
+  document.getElementById('q-text').textContent=q.q;
+  document.getElementById('feedback-bar').classList.add('hidden');
+
+  const card=document.getElementById('question-card');
+  const iconSpan=card.querySelector('.mascot');
+  if(iconSpan)iconSpan.textContent=icons[currentQ];
+
+  const container=document.getElementById('options-container');
+  container.innerHTML='';
+  q.opts.forEach((opt,i)=>{
+    const btn=document.createElement('button');
+    btn.className='btn-option w-full text-left px-4 py-3 rounded-xl flex items-center gap-3';
+    btn.innerHTML=`<span class="w-8 h-8 rounded-lg bg-blue-500/20 flex items-center justify-center font-bold text-blue-300 flex-shrink-0 text-sm">${labels[i]}</span><span class="text-sm md:text-base">${opt}</span>`;
+    btn.onclick=()=>selectAnswer(i,btn);
+    btn.style.animationDelay=`${i*0.08}s`;
+    btn.classList.add('anim-fade');
+    container.appendChild(btn);
+  });
+
+  startTimer();
+}
+
+function startTimer(){
+  timeLeft=10;
+  updateTimerDisplay();
+  clearInterval(timerInterval);
+  timerInterval=setInterval(()=>{
+    timeLeft-=0.1;
+    if(timeLeft<=0){timeLeft=0;clearInterval(timerInterval);timeUp();}
+    updateTimerDisplay();
+  },100);
+}
+
+function updateTimerDisplay(){
+  const t=Math.ceil(timeLeft);
+  document.getElementById('timer-text').textContent=t;
+  const offset=94.25*(1-timeLeft/10);
+  document.getElementById('timer-circle').style.strokeDashoffset=offset;
+  if(timeLeft<=3){
+    document.getElementById('timer-circle').style.stroke='#ef4444';
+    document.getElementById('timer-text').style.color='#ef4444';
+  }else{
+    const c=(window.elementSdk?.config?.secondary_action)||'#facc15';
+    document.getElementById('timer-circle').style.stroke=c;
+    document.getElementById('timer-text').style.color=c;
+  }
+}
+
+function timeUp(){
+  if(answered)return;
+  answered=true;
+  playWrong();
+  const btns=document.querySelectorAll('.btn-option');
+  btns.forEach((b,i)=>{
+    if(i===questions[currentQ].ans)b.classList.add('correct');
+    b.classList.add('disabled-opt');
+  });
+  showFeedback(false,"⏰ Waktu habis!");
+  setTimeout(nextQuestion,1500);
+}
+
+function selectAnswer(idx,btn){
+  if(answered)return;
+  answered=true;
+  clearInterval(timerInterval);
+  playClick();
+
+  const correct=questions[currentQ].ans;
+  const btns=document.querySelectorAll('.btn-option');
+  btns.forEach(b=>b.classList.add('disabled-opt'));
+
+  if(idx===correct){
+    btn.classList.add('correct');
+    score++;
+    playCorrect();
+    showFeedback(true,"✅ Benar! Keren!");
+    document.getElementById('score-display').textContent=`⭐ ${score}`;
+  }else{
+    btn.classList.add('wrong');
+    btns[correct].classList.add('correct');
+    playWrong();
+    showFeedback(false,`❌ Salah! Jawaban: ${labels[correct]}`);
+  }
+  setTimeout(nextQuestion,1500);
+}
+
+function showFeedback(ok,msg){
+  const fb=document.getElementById('feedback-bar');
+  fb.classList.remove('hidden');
+  fb.textContent=msg;
+  fb.style.background=ok?'rgba(34,197,94,0.15)':'rgba(239,68,68,0.15)';
+  fb.style.color=ok?'#4ade80':'#f87171';
+  fb.style.border=`1px solid ${ok?'rgba(34,197,94,0.3)':'rgba(239,68,68,0.3)'}`;
+}
+
+function nextQuestion(){
+  currentQ++;
+  if(currentQ>=10){showResult();return;}
+  const card=document.getElementById('question-card');
+  card.classList.remove('anim-fade');
+  void card.offsetWidth;
+  card.classList.add('anim-fade');
+  loadQuestion();
+}
+
+function showResult(){
+  clearInterval(timerInterval);
+  const cfg=window.elementSdk?.config||defaultConfig;
+  showScreen('screen-result');
+  document.getElementById('final-score').textContent=score;
+
+  let msg,mascot,stars;
+  if(score>=8){
+    msg=cfg.result_great||defaultConfig.result_great;
+    mascot="🤩";stars="⭐⭐⭐⭐⭐";
+    spawnConfetti();
+  }else if(score>=5){
+    msg=cfg.result_ok||defaultConfig.result_ok;
+    mascot="😊";stars="⭐⭐⭐";
+  }else{
+    msg=cfg.result_low||defaultConfig.result_low;
+    mascot="😅";stars="⭐";
+  }
+  document.getElementById('result-mascot').textContent=mascot;
+  document.getElementById('result-title').textContent=msg;
+  document.getElementById('result-title').style.color=score>=8?'#facc15':score>=5?'#60a5fa':'#f87171';
+  document.getElementById('result-sub').textContent=`${playerName}, kamu menjawab ${score} dari 10 soal dengan benar!`;
+  document.getElementById('result-stars').textContent=stars;
+
+  saveScore(playerName,score);
+}
+
+function spawnConfetti(){
+  const colors=['#facc15','#3b82f6','#22c55e','#ef4444','#a855f7','#f97316'];
+  for(let i=0;i<50;i++){
+    const c=document.createElement('div');
+    c.className='confetti-piece';
+    c.style.left=Math.random()*100+'%';
+    c.style.top='-10px';
+    c.style.background=colors[Math.floor(Math.random()*colors.length)];
+    c.style.borderRadius=Math.random()>0.5?'50%':'0';
+    c.style.animationDuration=(2+Math.random()*2)+'s';
+    c.style.animationDelay=(Math.random()*0.5)+'s';
+    document.body.appendChild(c);
+    setTimeout(()=>c.remove(),5000);
+  }
+}
+
+// Leaderboard with localStorage
+function getLeaderboard(){
+  try{return JSON.parse(localStorage.getItem('lb_kelistrikan')||'[]')}catch(e){return[]}
+}
+function saveScore(name,s){
+  const lb=getLeaderboard();
+  lb.push({name,score:s,date:new Date().toISOString()});
+  lb.sort((a,b)=>b.score-a.score);
+  localStorage.setItem('lb_kelistrikan',JSON.stringify(lb.slice(0,20)));
+}
+function showLeaderboard(){
+  playClick();
+  showScreen('screen-leaderboard');
+  const lb=getLeaderboard();
+  const list=document.getElementById('lb-list');
+  const empty=document.getElementById('lb-empty');
+  if(!lb.length){list.innerHTML='';empty.classList.remove('hidden');return;}
+  empty.classList.add('hidden');
+  const medals=['🥇','🥈','🥉'];
+  list.innerHTML=lb.slice(0,10).map((e,i)=>`
+    <div class="leaderboard-row rounded-xl px-4 py-3 flex items-center justify-between">
+      <div class="flex items-center gap-3">
+        <span class="text-lg">${medals[i]||'#'+(i+1)}</span>
+        <span class="font-bold text-sm">${e.name}</span>
+      </div>
+      <span class="font-bold text-yellow-300">${e.score}/10</span>
+    </div>
+  `).join('');
+}
+
+function backToStart(){playClick();showScreen('screen-start');}
+function restartQuiz(){playClick();showScreen('screen-start');}
+
+lucide.createIcons();
+</script>
+ <script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'9ee841d5535d0557',t:'MTc3NjU2MzQxMy4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+  </html>
